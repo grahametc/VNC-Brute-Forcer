@@ -1,1 +1,1 @@
-Dependencies: macchanger, dsniff
+Dependencies: macchanger
