@@ -1,3 +1,3 @@
 Dependencies: TigerVNC, macchanger, dsniff
 
-Not working yet.
+Not optimal yet.
