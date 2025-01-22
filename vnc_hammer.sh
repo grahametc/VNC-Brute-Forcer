@@ -23,16 +23,16 @@ do
 		pkill -f "vncviewer"
 	fi
 done
-
-if grep -q "Connected to host" stdout.txt; then
-                        echo -e "\033[32m[Established Connection]\033[0m"
-                        echo
-                        connection=1
-                        pkill -f "vncviewer"
-                else
-                        echo -e "\033[31mUnable to connect\033[0m"
-                        pkill -f "vncviewer"
-                fi
+sleep 0.1
+	if netstat -na | grep 5900| grep "ESTABLISHED"; then
+		echo -e "\033[32m[Established Connection]\033[0m"
+		echo
+		connection=1
+		pkill -f "vncviewer"
+        else
+                echo -e "\033[31mUnable to connect\033[0m"
+		pkill -f "vncviewer"
+        fi
 dhcp_hop(){
         prev_ip=$(hostname -I)
         ifconfig "$interface" down
