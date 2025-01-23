@@ -9,29 +9,30 @@ echo
 echo -e "\033[34mTrying...\033[0m"
 echo 
 vncviewer $ipadd:$port > stdout.txt 2>&1 &
-window_up=0
-tries=0
-while [ $window_up -eq 0 ]; 
+established=0
+count=0
+while [ $established -eq 0 ]; 
 do
-	if ps aux | grep -q "vncviewer"; then
-		window_up=1
-	fi
-	sleep 0.1
-	count=$((count+1))
-	if [[ count -eq 60 ]]; then
-		window_up=-1
+	if netstat -na | grep 5900 | grep "ESTABLISHED"; then
+		established=1
 		pkill -f "vncviewer"
+	else
+		count=$((count+1))
+		sleep 0.1
 	fi
+	if [ $count -eq 100 ]; then
+		established=-1
+		pkill -f "vncviewer"
+	fi	
 done
 sleep 0.1
-	if netstat -na | grep 5900| grep "ESTABLISHED"; then
+	if [[ $established -eq 1 ]]
+        then
 		echo -e "\033[32m[Established Connection]\033[0m"
 		echo
 		connection=1
-		pkill -f "vncviewer"
         else
                 echo -e "\033[31mUnable to connect\033[0m"
-		pkill -f "vncviewer"
         fi
 dhcp_hop(){
         prev_ip=$(hostname -I)
