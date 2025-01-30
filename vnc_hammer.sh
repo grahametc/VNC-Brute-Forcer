@@ -1,8 +1,9 @@
 #!/bin/bash
 read -p "IP4 Address: " ipadd
 read -p "Access Port (default:5900): " port
-read -p "Network Interface: " interface
 read -p "Password File Name: " file_name
+interface=$(ls /sys/class/net | grep -v "lo")
+#interface=$(ip a | awk '/inet.*brd/{print $NF}')
 connection=0
 echo
 echo -e "\033[34mTrying...\033[0m"
@@ -94,11 +95,12 @@ then
 			fi
 		elif grep -q "connection has been rejected" stdout.txt
 		then
+			echo "[Status]: Failed"
 			dhcp_hop
 			tries=0
 			pkill -f "xtightvncviewer"
 		else
-			echo "Failed"
+			echo "No response"
 			pkill -f "xtightvncviewer"
 		fi
 	done < "$file_name"
