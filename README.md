@@ -2,7 +2,7 @@
 A VNC server brute force tool for LAN and public connections.
 
 ## Dependencies
-TigerVNC, macchanger, dsniff
+TightVNC Viewer, macchanger
 
 Not optimal yet.
 
