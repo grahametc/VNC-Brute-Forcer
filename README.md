@@ -1,5 +1,5 @@
 # VNC Hammer
-A VNC server brute force tool for LAN and WLAN.
+A VNC server brute force tool for LAN and public connections.
 
 ## Dependencies
 TigerVNC, macchanger, dsniff
