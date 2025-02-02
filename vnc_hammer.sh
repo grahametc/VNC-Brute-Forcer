@@ -12,10 +12,9 @@ xtightvncviewer $ipadd:$port > stdout.txt 2>&1 &
 established=0
 count=0
 sleep 1
-netstat -na | grep 5900
 while [ $established -eq 0 ]; 
-do	#netstat error, showing TIME_WAIT
-	if netstat -na | grep 5900 | grep "ESTABLISHED" 
+do
+	if ss -t state established | grep -q 5900
 	then
 		pkill -f "xtightvncviewer"
 		established=1
@@ -95,7 +94,7 @@ then
 			fi
 		elif grep -q "connection has been rejected" stdout.txt
 		then
-			echo "[Status]: Failed"
+			echo "[Status]: Rejected"
 			dhcp_hop
 			tries=0
 			pkill -f "xtightvncviewer"
