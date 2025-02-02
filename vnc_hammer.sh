@@ -1,4 +1,9 @@
 #!/bin/bash
+if ! [ $(id -u) = 0 ]
+then
+	echo "Run as root!"
+	exit 1
+fi
 read -p "Host IP4 Address: " ipadd
 read -p "Access Port (default:5900): " port
 read -p "Password File Name: " file_name
