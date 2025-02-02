@@ -1,5 +1,5 @@
 # VNC Hammer
-A VNC server brute force tool for LAN and public connections.
+A VNC server brute force tool for LAN and WAN connections.
 
 ## Dependencies
 TightVNC Viewer, macchanger
