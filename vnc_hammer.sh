@@ -1,9 +1,9 @@
 #!/bin/bash
-read -p "IP4 Address: " ipadd
+read -p "Host IP4 Address: " ipadd
 read -p "Access Port (default:5900): " port
 read -p "Password File Name: " file_name
-interface=$(ls /sys/class/net | grep -v "lo")
-#interface=$(ip a | awk '/inet.*brd/{print $NF}')
+#interface=$(ls /sys/class/net | grep -v "lo")
+interface=$(ip a | awk '/inet.*brd/{print $NF}')
 connection=0
 echo
 echo -e "\033[34mTrying...\033[0m"
@@ -13,8 +13,8 @@ established=0
 count=0
 sleep 1
 while [ $established -eq 0 ]; 
-do
-	if ss -t state established | grep -q 5900
+do	#netstat error, showing TIME_WAIT
+	if ss -t state established | grep 5900
 	then
 		pkill -f "xtightvncviewer"
 		established=1
@@ -94,12 +94,13 @@ then
 			fi
 		elif grep -q "connection has been rejected" stdout.txt
 		then
-			echo "[Status]: Rejected"
+			echo "[STATUS]: Rejected"
 			dhcp_hop
 			tries=0
 			pkill -f "xtightvncviewer"
 		else
-			echo "No response"
+			echo "[STATUS]: No response"
+			cat stdout.txt
 			pkill -f "xtightvncviewer"
 		fi
 	done < "$file_name"
