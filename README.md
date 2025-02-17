@@ -14,4 +14,6 @@ TightVNC Viewer, macchanger, net-tools
 
 
 ## Usage 
+```
 sudo bash vnc_hammer.sh
+```
