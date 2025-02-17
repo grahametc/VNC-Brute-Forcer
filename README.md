@@ -7,8 +7,14 @@ git clone https://github.com/grahametc/VNC-Hammer.git
 cd VNC-Hammer
 ```
 
-## Dependencies
+## Install Dependencies
 TightVNC Viewer, macchanger, net-tools
+```
+sudo apt install xtightvncviewer
+sudo apt install macchanger
+sudo apt install nmcli
+```
+
 
 
 
