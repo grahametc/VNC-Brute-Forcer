@@ -12,7 +12,7 @@ TightVNC Viewer, macchanger, net-tools
 ```
 sudo apt install xtightvncviewer
 sudo apt install macchanger
-sudo apt install nmcli
+sudo apt install net-tools
 ```
 
 
