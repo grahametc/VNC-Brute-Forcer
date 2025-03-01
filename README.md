@@ -1,10 +1,10 @@
-# VNC Hammer
+# VNC Cracker
 A VNC server brute force tool for LAN connections.
 
 ## Want to Use?
 ```
-git clone https://github.com/grahametc/VNC-Hammer.git
-cd VNC-Hammer
+git clone https://github.com/grahametc/VNC-Cracker.git
+cd VNC-Cracker
 ```
 
 ## Install Dependencies
