@@ -4,7 +4,7 @@ A VNC server brute force tool for LAN connections.
 ## Want to Use?
 ```
 git clone https://github.com/grahametc/VNC-Brute-Forcer.git
-cd VNC-Cracker
+cd VNC-Brute-Forcer
 ```
 
 ## Install Dependencies
